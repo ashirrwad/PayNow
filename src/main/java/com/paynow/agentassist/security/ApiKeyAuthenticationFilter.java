@@ -37,14 +37,26 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
     String apiKey = request.getHeader(API_KEY_HEADER);
 
-    if (apiKey == null || !apiKeyService.validateApiKey(apiKey)) {
+    try {
+      if (apiKey == null || !apiKeyService.validateApiKey(apiKey)) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\":\"Invalid or missing API key\"}");
+        return;
+      }
+    } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
       response.getWriter().write("{\"error\":\"Invalid or missing API key\"}");
       return;
     }
 
-    String userId = apiKeyService.getUserIdByApiKey(apiKey).orElse("unknown");
+    String userId;
+    try {
+      userId = apiKeyService.getUserIdByApiKey(apiKey).orElse("unknown");
+    } catch (Exception e) {
+      userId = "unknown";
+    }
 
     UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());

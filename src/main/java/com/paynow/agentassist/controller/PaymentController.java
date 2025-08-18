@@ -6,7 +6,7 @@ import com.paynow.agentassist.dto.PaymentDecisionRequest;
 import com.paynow.agentassist.dto.PaymentDecisionResponse;
 import com.paynow.agentassist.dto.RateLimitResult;
 import com.paynow.agentassist.service.MetricsService;
-import com.paynow.agentassist.service.PaymentDecisionService;
+import com.paynow.agentassist.service.payment.PaymentDecisionService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

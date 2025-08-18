@@ -22,6 +22,7 @@ public final class ApiConstants {
   public static final String METRIC_PAYMENT_REQUESTS_TOTAL = "payment_requests_total";
   public static final String METRIC_PAYMENT_DECISIONS_TOTAL = "payment_decisions_total";
   public static final String METRIC_PAYMENT_REQUEST_DURATION = "payment_request_duration";
+  public static final String METRIC_REQUEST_DURATION = "request_duration";
   public static final String METRIC_OPERATION_EXECUTION_TIME = "operation.execution.time";
   public static final String METRIC_OPERATION_FAILURES = "operation.failures";
 

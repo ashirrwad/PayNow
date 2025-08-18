@@ -10,6 +10,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.paynow.agentassist.util.ResourceManager;
 
+import static com.paynow.agentassist.util.PiiMaskingUtil.maskCustomerId;
+
 @Service
 public class BalanceService {
 
@@ -102,10 +104,4 @@ public class BalanceService {
         });
   }
 
-  private String maskCustomerId(String customerId) {
-    if (customerId == null || customerId.length() < 6) {
-      return "***";
-    }
-    return customerId.substring(0, 2) + "***" + customerId.substring(customerId.length() - 2);
-  }
 }

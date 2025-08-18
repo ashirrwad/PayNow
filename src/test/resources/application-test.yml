@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  
+  h2:
+    console:
+      enabled: false
+
+logging:
+  level:
+    com.paynow.agentassist: DEBUG
+    org.springframework.security: WARN
+
+paynow:
+  security:
+    api-keys:
+      - key: "paynow-secure-api-key-test"
+        name: "test-client"
+        description: "Test client"
+  rate-limit:
+    requests-per-second: 10
+    bucket-capacity: 20
+  agent:
+    max-retries: 1
+    timeout-seconds: 10

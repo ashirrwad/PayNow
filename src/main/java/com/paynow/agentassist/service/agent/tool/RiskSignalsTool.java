@@ -2,6 +2,7 @@ package com.paynow.agentassist.service.agent.tool;
 
 import com.paynow.agentassist.dto.RiskSignals;
 import com.paynow.agentassist.util.ResourceManager;
+import com.paynow.agentassist.util.PiiMaskingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class RiskSignalsTool implements AgentTool<String, RiskSignals> {
     return CompletableFuture.supplyAsync(
         () -> {
           try {
-            logger.debug("Fetching risk signals for customer: {}", customerId);
+            logger.debug("Fetching risk signals for customer: {}", PiiMaskingUtil.maskCustomerId(customerId));
             Thread.sleep(75); // Simulate ML model call latency
 
             // Simulate deterministic risk assessment based on customerId
@@ -60,7 +61,7 @@ public class RiskSignalsTool implements AgentTool<String, RiskSignals> {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Risk signals fetch interrupted", e);
           } catch (Exception e) {
-            logger.error("Failed to fetch risk signals for customer: {}", customerId, e);
+            logger.error("Failed to fetch risk signals for customer: {}", PiiMaskingUtil.maskCustomerId(customerId), e);
             throw new RuntimeException("Risk signals fetch failed", e);
           }
         },

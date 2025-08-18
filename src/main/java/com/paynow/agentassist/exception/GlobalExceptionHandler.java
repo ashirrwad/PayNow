@@ -1,17 +1,19 @@
 package com.paynow.agentassist.exception;
 
+import com.paynow.agentassist.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,63 +21,99 @@ public class GlobalExceptionHandler {
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+  public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(
       MethodArgumentNotValidException ex) {
 
-    Map<String, Object> response = new HashMap<>();
-    Map<String, String> errors = new HashMap<>();
-
-    ex.getBindingResult()
+    String validationErrors = ex.getBindingResult()
         .getAllErrors()
-        .forEach(
-            (error) -> {
-              String fieldName = ((FieldError) error).getField();
-              String errorMessage = error.getDefaultMessage();
-              errors.put(fieldName, errorMessage);
-            });
+        .stream()
+        .map(error -> {
+          String fieldName = ((FieldError) error).getField();
+          String errorMessage = error.getDefaultMessage();
+          return fieldName + ": " + errorMessage;
+        })
+        .collect(Collectors.joining(", "));
 
-    response.put("error", "Validation failed");
-    response.put("details", errors);
+    logger.warn("Validation error: {}", validationErrors);
 
-    logger.warn("Validation error: {}", errors);
+    ApiResponse<Void> response = ApiResponse.error(
+        "VALIDATION_ERROR", 
+        "Request validation failed", 
+        validationErrors
+    );
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(
+  public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
       IllegalArgumentException ex) {
 
-    Map<String, Object> response = new HashMap<>();
-    response.put("error", "Invalid request");
-    response.put("message", ex.getMessage());
-
     logger.warn("Invalid argument: {}", ex.getMessage());
+
+    ApiResponse<Void> response = ApiResponse.error(
+        "INVALID_REQUEST", 
+        "Invalid request parameter", 
+        ex.getMessage()
+    );
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-    Map<String, Object> response = new HashMap<>();
-    response.put("error", "Internal server error");
-    response.put("message", "An unexpected error occurred");
-
+  public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
     logger.error("Unexpected error", ex);
+
+    ApiResponse<Void> response = ApiResponse.error(
+        "INTERNAL_ERROR", 
+        "An unexpected error occurred"
+    );
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-  public ResponseEntity<Map<String, Object>> handleMethodNotSupportedException(
+  public ResponseEntity<ApiResponse<Void>> handleMethodNotSupportedException(
       HttpRequestMethodNotSupportedException ex) {
-
-    Map<String, Object> response = new HashMap<>();
-    response.put("error", "Method not allowed");
-    response.put("message", ex.getMessage());
 
     logger.warn("Method not allowed: {}", ex.getMessage());
 
+    ApiResponse<Void> response = ApiResponse.error(
+        "METHOD_NOT_ALLOWED", 
+        "HTTP method not supported", 
+        ex.getMessage()
+    );
+
     return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException ex) {
+
+    logger.warn("Malformed request body: {}", ex.getMessage());
+
+    ApiResponse<Void> response = ApiResponse.error(
+        "MALFORMED_REQUEST", 
+        "Request body is malformed or missing", 
+        "Please provide a valid JSON request body"
+    );
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ResponseEntity<ApiResponse<Void>> handleHttpMediaTypeNotSupportedException(
+      HttpMediaTypeNotSupportedException ex) {
+
+    logger.warn("Unsupported media type: {}", ex.getMessage());
+
+    ApiResponse<Void> response = ApiResponse.error(
+        "UNSUPPORTED_MEDIA_TYPE", 
+        "Content type not supported", 
+        "Please use application/json content type"
+    );
+
+    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
   }
 }
