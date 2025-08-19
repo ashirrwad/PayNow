@@ -31,14 +31,20 @@ public class ApiKeyService {
     this.apiKeyRepository = apiKeyRepository;
   }
 
+  public boolean apiKeyExists(String apiKey) {
+    String keyHash = hashApiKey(apiKey);
+    return apiKeyRepository.findByKeyHash(keyHash).isPresent();
+  }
+
   public String createApiKey(String userId, String name, String description) {
-    // Generate secure API key
     byte[] keyBytes = new byte[API_KEY_LENGTH];
     secureRandom.nextBytes(keyBytes);
     String apiKey =
         API_KEY_PREFIX + Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
+    return createApiKey(apiKey, userId, name, description);
+  }
 
-    // Hash the key for storage
+  public String createApiKey(String apiKey, String userId, String name, String description) {
     String keyHash = hashApiKey(apiKey);
 
     ApiKeyEntity entity = new ApiKeyEntity();
@@ -52,12 +58,11 @@ public class ApiKeyService {
 
     logger.info("Created new API key for user: {}, name: {}", userId, name);
 
-    // Return the plain key only once (never stored)
     return apiKey;
   }
 
   public boolean validateApiKey(String apiKey) {
-    if (apiKey == null || !apiKey.startsWith(API_KEY_PREFIX)) {
+    if (apiKey == null) {
       return false;
     }
 
@@ -65,7 +70,6 @@ public class ApiKeyService {
     Optional<ApiKeyEntity> entity = apiKeyRepository.findByKeyHashAndActiveTrue(keyHash);
 
     if (entity.isPresent()) {
-      // Update usage statistics asynchronously
       updateUsageStats(entity.get().getId());
       return true;
     }
@@ -74,7 +78,7 @@ public class ApiKeyService {
   }
 
   public Optional<String> getUserIdByApiKey(String apiKey) {
-    if (apiKey == null || !apiKey.startsWith(API_KEY_PREFIX)) {
+    if (apiKey == null) {
       return Optional.empty();
     }
 
@@ -105,7 +109,6 @@ public class ApiKeyService {
       apiKeyRepository.updateUsageStats(keyId, LocalDateTime.now());
     } catch (Exception e) {
       logger.warn("Failed to update usage stats for key: {}", keyId, e);
-      // Don't fail the request if usage tracking fails
     }
   }
 

@@ -174,6 +174,6 @@ curl -X POST http://localhost:8080/api/v1/payments/decide \
 - **Implement a persistent database:** Replace the in-memory H2 database with a persistent database like PostgreSQL.
 - **Implement a distributed cache:** Replace the in-memory rate limiting with a distributed cache like Redis.
 - **Implement a real event bus:** Replace the simulated event bus with a real message broker like Kafka or RabbitMQ.
-
+- **Add Sign up Routes**: Add Sign up routes to add new users instead of using application properties and hardcoded API keys.
 
 ```
