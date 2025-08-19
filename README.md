@@ -33,6 +33,17 @@ You can run the application using either Maven or Docker.
     ```bash
     docker run -p 8080:8080 paynow-agent-assist
     ```
+## API Showcase
+
+I have create a minimal frontend application to showcase the API. 
+You can access it at [PayNow](https://paynow-frontend.onrender.com/).
+Note this is a demo application to showcase the API and does not include all features of the backend.
+Also the application is hosted on Render(serverless instance), so it may take a few seconds to start up.
+
+I have also created an evaluation script to test the API. You can find it in the root directory of the project.
+```bash
+./run-tests-evals-script.sh
+```
 
 ## Architecture Diagram
 
