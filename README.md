@@ -8,16 +8,26 @@ You can run the application using either Maven or Docker.
 
 ### Using Maven
 
+#### Option 1: Build and Run JAR
+
 1.  **Build the application:**
 
     ```bash
     mvn clean install
     ```
 
-2.  **Run the application:**
+2.  **Run the JAR file:**
 
     ```bash
     java -jar target/agent-assist-0.0.1-SNAPSHOT.jar
+    ```
+
+#### Option 2: Spring Boot Maven Plugin (Recommended for Development)
+
+1.  **Run with default profile (local):**
+
+    ```bash
+    mvn spring-boot:run
     ```
 
 ### Using Docker
@@ -44,6 +54,10 @@ I have also created an evaluation script to test the API. You can find it in the
 ```bash
 ./run-tests-evals-script.sh
 ```
+
+Screenshots:
+![img.png](metrics.png)
+![img.png](decision.png)
 
 ## Architecture Diagram
 
