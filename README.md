@@ -36,7 +36,7 @@ You can run the application using either Maven or Docker.
 
 ## Architecture Diagram
 
-![img.png](img.png)
+![img.png](architecture_diagram.png)
 
 ## What I Optimized
 
